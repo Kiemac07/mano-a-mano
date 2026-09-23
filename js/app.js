@@ -33,10 +33,55 @@ function initCustomizer(type){
  function renderViews(){E('cxViews').innerHTML=frames.map((f,i)=>`<button class="cx-view-btn ${i===view?'active':''}" data-v="${i}"><img src="assets/frames/${f}.jpg"></button>`).join('');document.querySelectorAll('.cx-view-btn').forEach(b=>b.onclick=()=>{view=(+b.dataset.v+frames.length)%frames.length;update()});}
  const shapeMap={
   'Palm Back':'polygon(8% 5%,92% 5%,90% 51%,62% 57%,20% 52%,8% 35%)','Wrist Back':'polygon(17% 50%,84% 50%,83% 95%,18% 95%)','Thumb Up':'polygon(58% 9%,94% 15%,96% 52%,70% 55%,57% 33%)','Thumb Middle':'polygon(47% 12%,81% 15%,86% 48%,54% 50%)','Thumb Down':'polygon(46% 28%,89% 22%,92% 60%,60% 64%)','Thumb In':'polygon(11% 23%,55% 18%,66% 55%,17% 65%)','Thumb Strip':'polygon(42% 12%,64% 12%,64% 73%,44% 73%)','Thumb Attachment':'polygon(50% 42%,79% 43%,83% 69%,53% 69%)','Palm In':'polygon(12% 30%,59% 30%,61% 74%,16% 74%)','Palm Out':'polygon(46% 25%,90% 29%,88% 74%,48% 74%)','Piping':'polygon(10% 49%,90% 49%,90% 56%,10% 56%)','Stitches':'polygon(43% 40%,58% 40%,58% 91%,43% 91%)','Laces':'polygon(44% 61%,56% 61%,56% 96%,44% 96%)'};
+ const placements={
+  '6221':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
+  '6222':{logo:null,patch:{x:50,y:84,w:50,h:11,show:true}},
+  '6223':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
+  '6224':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
+  '6225':{logo:null,patch:{x:57,y:84,w:46,h:11,show:true}},
+  '6226':{logo:{x:59,y:29,w:32,h:29,show:true},patch:{x:68,y:86,w:31,h:10,show:true}},
+  '6227':{logo:{x:60,y:29,w:31,h:29,show:true},patch:{x:69,y:86,w:30,h:10,show:true}},
+  '6228':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
+  '6229':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
+  '6230':{logo:{x:50,y:28,w:40,h:29,show:true},patch:{x:50,y:87,w:48,h:10,show:true}},
+  '6231':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}}
+ };
+ // The logo is pinned to the glove surface by view. Contest uses the right-hand side;
+ // training/sparring uses the centre. The wrist patch is pinned across the visible wrist/cuff.
+ const logoPlacements={
+   contest:{
+     '6226':{x:59,y:29,w:32,h:29,show:true},
+     '6227':{x:60,y:29,w:31,h:29,show:true}
+   },
+   training:{
+     '6226':{x:50,y:29,w:40,h:29,show:true},
+     '6227':{x:50,y:29,w:40,h:29,show:true},
+     '6230':{x:50,y:28,w:40,h:29,show:true}
+   },
+   sparring:{
+     '6226':{x:50,y:29,w:40,h:29,show:true},
+     '6227':{x:50,y:29,w:40,h:29,show:true},
+     '6230':{x:50,y:28,w:40,h:29,show:true}
+   }
+ };
+ function addMaskedLogo(layer,kind,place){
+   if(!place||!place.show||!logoOn)return;
+   const box=document.createElement('div');box.className='cx-logo-box';box.style.left=place.x+'%';box.style.top=place.y+'%';box.style.width=place.w+'%';box.style.height=place.h+'%';
+   if(kind==='contest'){
+     const m=document.createElement('div');m.className='cx-logo-mask cx-contest-m';m.style.backgroundColor=logoColor;
+     const txt=document.createElement('div');txt.className='cx-logo-mask cx-contest-text';txt.style.backgroundColor='#fff';
+     box.append(m,txt);
+   }else{
+     const all=document.createElement('div');all.className='cx-logo-mask cx-training-all';all.style.backgroundColor=logoColor;box.appendChild(all);
+   }
+   layer.appendChild(box);
+ }
  function buildLayer(){const layer=E('cxLayer');layer.innerHTML='';sections.forEach(s=>{if(colors[s]!=='#ffffff'){const d=document.createElement('div');d.className='cx-panel-shape';d.style.setProperty('--c',colors[s]);d.style.clipPath=shapeMap[s]||'none';layer.appendChild(d);}});
-  if(logoOn){const logo=document.createElement('img');logo.className='cx-logo cx-main-logo';logo.src=currentType==='contest'?'assets/contest-m.png':'assets/training-transparent.png';if(currentType==='contest'){logo.style.filter=`drop-shadow(0 0 0 ${logoColor})`;logo.style.opacity=.95}else{logo.style.filter=`drop-shadow(0 0 0 ${logoColor}) saturate(0) brightness(.2)`;if(logoColor!=='#050505')logo.style.mixBlendMode='screen';}layer.appendChild(logo);}
-  if(patchOn){const p=document.createElement('img');p.className='cx-logo cx-patch-logo';p.src='assets/wrist-patch-transparent.png';layer.appendChild(p);}
-  const pos=textState.positions[view]||{x:50,y:50};const tx=E('cxText');tx.classList.toggle('on',textState.show);tx.textContent=textState.text;tx.style.left=pos.x+'%';tx.style.top=pos.y+'%';
+   const place=placements[frameName()]||{};
+   const lp=(logoPlacements[currentType]||{})[frameName()];
+   addMaskedLogo(layer,currentType==='contest'?'contest':'training',lp);
+   if(patchOn&&place.patch&&place.patch.show){const p=document.createElement('img');p.className='cx-patch-logo';p.src='assets/wrist-patch-transparent.png';p.style.left=place.patch.x+'%';p.style.top=place.patch.y+'%';p.style.width=place.patch.w+'%';p.style.height=place.patch.h+'%';layer.appendChild(p);}
+   const pos=textState.positions[view]||{x:50,y:50};const tx=E('cxText');tx.classList.toggle('on',textState.show);tx.textContent=textState.text;tx.style.left=pos.x+'%';tx.style.top=pos.y+'%';
  }
  function update(){typeUI();renderSections();renderViews();E('cxFrame').src=`assets/frames/${frameName()}.jpg`;E('cxLogoSwitch').classList.toggle('on',logoOn);E('cxLogoSwitchText').textContent=logoOn?'Main logo included':'Remove main logo (+£10)';E('cxPatchSwitch').classList.toggle('on',patchOn);E('cxPrice').textContent=logoOn?'125':'135';E('cxPriceNote').textContent=logoOn?'starting price':'£10 logo removal added';buildLayer();updateSummary();}
  function updateSummary(){const changed=sections.filter(s=>colors[s]!=='#ffffff').map(s=>`${s}: ${cname(colors[s])}`);E('cxSummary').innerHTML=`<b>${currentType.toUpperCase()} / ${weight}</b><br>Logo: ${logoOn?'Included — '+cname(logoColor):'Removed (+£10)'}<br>Wrist patch: ${patchOn?'Included':'Removed (free)'}<br>Colours: ${changed.length?changed.join(' · '):'All sections white'}<br>Custom text: ${textState.show?textState.text:'None'}`;}
