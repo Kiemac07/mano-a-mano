@@ -1,34 +1,12 @@
-# Mano a Mano — Website / Customiser Draft
+MANO A MANO — DRAFT V3
 
-This is the first visual prototype for the Mano a Mano Boxing website.
+Navigation now uses the requested expandable menu structure.
 
-## Run it
-Open `index.html` in a browser, or use VS Code + Live Server.
+CUSTOM contains Training Gloves, Sparring Gloves, Competition Gloves, Headguard and Groin Guard.
+GLOVES contains Training Gloves, Sparring Gloves and Competition Gloves.
 
-## Included
-- Dark premium boxing-brand layout
-- Left navigation
-- Shop sections
-- Custom sections for:
-  - Sparring Gloves
-  - Training Gloves
-  - Contest Gloves
-  - Headgear
-  - Groin Guard
-- Draft interactive customiser
-- Colour pickers
-- Drag-to-rotate placeholder glove
-- Custom text
-- Extra details
-- Name + email fields
-- Submission placeholder
+The glove customiser now uses a procedural Three.js 3D placeholder shaped around the supplied Mano a Mano glove references. It starts plain white, includes the Mano a Mano emblem and MANO A MANO text, and can be dragged around 360 degrees. There is intentionally NO zoom.
 
-## Next major step
-Replace the placeholder CSS glove with a real `.glb/.gltf` 3D model. The model should have separate mesh/material regions so each colour picker can control the correct part of the real glove.
+The real production version should replace the procedural model with a professionally modelled .glb/.gltf Mano a Mano glove, with separate mesh/material regions for every colour picker.
 
-After that:
-1. Add the real Mano a Mano product models.
-2. Add logos/text/decal placement.
-3. Generate a design preview image.
-4. Connect the submit button to a secure serverless backend/email provider.
-5. Send the full configuration + preview automatically to the Mano a Mano enquiry email.
+Open index.html using VS Code Live Server. Internet is required because Three.js is loaded from jsDelivr.

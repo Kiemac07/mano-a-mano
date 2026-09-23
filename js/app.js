@@ -1,224 +1,36 @@
-const app = document.getElementById("app");
-const menuToggle = document.getElementById("menuToggle");
-const sidebar = document.querySelector(".sidebar");
-
-menuToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
-
-const gloveTypes = {
-  sparring: "Custom Sparring Gloves",
-  training: "Custom Training Gloves",
-  contest: "Custom Contest Gloves",
-  headgear: "Custom Headgear",
-  groin: "Custom Groin Guard"
-};
-
-const colorSections = [
-  ["outer-thumb", "Outer Thumb"],
-  ["inner-thumb", "Inner Thumb"],
-  ["outer-palm", "Outer Palm"],
-  ["inner-palm", "Inner Palm"],
-  ["back", "Back of Glove"],
-  ["wrist", "Wrist"],
-  ["cuff", "Cuff"],
-  ["stitching", "Stitching"]
-];
-
-const state = {
-  type: "sparring",
-  colors: Object.fromEntries(colorSections.map(([id]) => [id, "#111111"])),
-  text: "",
-  details: "",
-  name: "",
-  email: "",
-  rx: -8,
-  ry: -8
-};
-
-function layoutShell(title, subtitle, content) {
-  return `
-    <section class="page">
-      <div class="page-head">
-        <div class="eyebrow">MANO A MANO BOXING</div>
-        <h1>${title}</h1>
-        <p>${subtitle}</p>
-      </div>
-      ${content}
-    </section>`;
-}
-
-function shopPage(kind) {
-  const title = kind === "gloves" ? "Gloves" : kind === "headguard" ? "Headguard" : "Groin Guard";
-  const products = kind === "gloves"
-    ? ["Training Gloves","Sparring Gloves","Contest Gloves"]
-    : [title];
-  return layoutShell(title, "Premium boxing equipment built around performance, protection and clean design.", `
-    <div class="product-grid">
-      ${products.map((p,i)=>`
-        <article class="product-card">
-          <div class="product-art">${kind === "gloves" ? "GLOVE" : kind === "headguard" ? "HEADGUARD" : "GROIN GUARD"}</div>
-          <div><h3>${p}</h3><p>PRODUCT PREVIEW — DETAILS TO BE ADDED</p></div>
-        </article>`).join("")}
-    </div>`);
-}
-
-function customizer(type="sparring") {
-  state.type = type;
-  const title = gloveTypes[type];
-  const isGlove = ["sparring","training","contest"].includes(type);
-  const sections = isGlove ? colorSections : [
-    ["shell","Outer Shell"],["inner","Inner Padding"],["side","Side Panels"],["strap","Straps"],["cuff","Cuff"],["stitching","Stitching"]
-  ];
-  return `
-  <section class="customizer">
-    <div class="custom-head">
-      <div>
-        <div class="eyebrow">CUSTOM / ${type.toUpperCase()}</div>
-        <h1>${title}</h1>
-      </div>
-      <p>Build your design visually. The final version will use a real Mano a Mano 3D model that can be dragged through a full 360° view.</p>
-    </div>
-    <div class="custom-layout">
-      <div class="viewer" id="viewer">
-        <div class="viewer-note">3D PREVIEW / DRAFT MODEL</div>
-        <div class="glove-stage" id="gloveStage">
-          <div class="glove-body" id="gloveBody"></div>
-          <div class="glove-thumb" id="gloveThumb"></div>
-          <div class="glove-palm" id="glovePalm"></div>
-          <div class="glove-cuff" id="gloveCuff"></div>
-          <div class="stitch" id="gloveStitch"></div>
-          <div class="glove-mark" id="gloveMark">MAM</div>
-        </div>
-        <div class="viewer-hint">DRAG TO ROTATE · 360° PREVIEW</div>
-      </div>
-      <aside class="panel">
-        <h2>Design</h2>
-        <div class="small">Choose a colour for each section. This draft uses a placeholder model until the real 3D glove/headgear files are available.</div>
-        <div class="swatches">
-          ${sections.map(([id,label])=>`
-            <div class="swatch-row">
-              <label>${label}</label>
-              <div class="swatch-control">
-                <input type="color" data-color="${id}" value="${state.colors[id] || "#111111"}">
-                <span class="hex" id="hex-${id}">${state.colors[id] || "#111111"}</span>
-              </div>
-            </div>`).join("")}
-        </div>
-
-        <div class="form-section">
-          <h3>Custom Text</h3>
-          <input class="text-control" id="customText" maxlength="18" placeholder="e.g. MACMILLAN" value="${state.text}">
-        </div>
-
-        <div class="form-section">
-          <h3>Extra Details</h3>
-          <textarea class="text-control" id="details" placeholder="Any extra details, requests or notes...">${state.details}</textarea>
-        </div>
-
-        <div class="form-section">
-          <h3>Your Details</h3>
-          <input class="text-control" id="customerName" placeholder="Name *" value="${state.name}" required>
-          <input class="text-control" id="customerEmail" type="email" placeholder="Email *" value="${state.email}" required>
-          <button class="btn submit" id="submitDesign" type="button">SUBMIT DESIGN</button>
-          <div class="status" id="submitStatus">Draft mode: email sending will be connected once the backend/email service is added.</div>
-        </div>
-      </aside>
-    </div>
-  </section>`;
-}
-
-function render() {
-  const hash = location.hash.replace("#","");
-  if (!hash || hash === "home") {
-    app.innerHTML = `
-      <section class="hero">
-        <div class="hero-inner">
-          <div class="eyebrow">MANO A MANO / BOXING EQUIPMENT</div>
-          <h1>BUILT<br><span>FOR THE</span>FIGHT</h1>
-          <p>Premium boxing equipment with a dedicated custom design experience. This is the first Mano a Mano website prototype.</p>
-          <a class="btn" href="#custom/sparring">START CUSTOMISING</a>
-        </div>
-      </section>`;
-  } else if (hash.startsWith("shop/")) {
-    app.innerHTML = shopPage(hash.split("/")[1]);
-  } else if (hash.startsWith("custom/")) {
-    const type = hash.split("/")[1];
-    app.innerHTML = customizer(gloveTypes[type] ? type : "sparring");
-    initCustomizer();
-  } else if (hash === "about") {
-    app.innerHTML = layoutShell("About Mano a Mano", "A premium boxing equipment concept focused on performance and custom design.", `<div class="info-grid"><div class="info-box"><h3>The Brand</h3><p>Mano a Mano is built around boxing culture, equipment and individuality. This section is ready for the real brand story.</p></div><div class="info-box"><h3>Custom Built</h3><p>The future customiser will let customers design their equipment and submit the finished specification directly to the team.</p></div></div>`);
-  } else {
-    app.innerHTML = layoutShell("Contact", "Contact information and enquiries will live here.", `<div class="info-grid"><div class="info-box"><h3>Get In Touch</h3><p>Email, Instagram and other contact details can be added here.</p></div><div class="info-box"><h3>Custom Orders</h3><p>For custom equipment, use the customiser and submit your design.</p></div></div>`);
-  }
-  window.scrollTo(0,0);
-  sidebar.classList.remove("open");
-}
-
-function applyColor(id, color) {
-  state.colors[id] = color;
-  const el = document.getElementById(`hex-${id}`);
-  if (el) el.textContent = color.toUpperCase();
-
-  const body = document.getElementById("gloveBody");
-  const thumb = document.getElementById("gloveThumb");
-  const palm = document.getElementById("glovePalm");
-  const cuff = document.getElementById("gloveCuff");
-  const stitch = document.getElementById("gloveStitch");
-
-  if (id === "back") body.style.background = color;
-  if (id === "outer-thumb") thumb.style.background = color;
-  if (id === "inner-thumb") thumb.style.boxShadow = `inset 14px 8px 22px ${color}, inset -16px -20px 28px #333`;
-  if (id === "outer-palm" || id === "inner-palm") palm.style.background = color;
-  if (id === "cuff" || id === "wrist") cuff.style.background = color;
-  if (id === "stitching") stitch.style.borderColor = color;
-}
-
-function initCustomizer() {
-  document.querySelectorAll("[data-color]").forEach(input => {
-    input.addEventListener("input", e => applyColor(e.target.dataset.color, e.target.value));
-    applyColor(input.dataset.color, input.value);
-  });
-
-  const text = document.getElementById("customText");
-  text.addEventListener("input", e => {
-    state.text = e.target.value;
-    document.getElementById("gloveMark").textContent = e.target.value || "MAM";
-  });
-
-  const details = document.getElementById("details");
-  const name = document.getElementById("customerName");
-  const email = document.getElementById("customerEmail");
-  details.addEventListener("input", e => state.details = e.target.value);
-  name.addEventListener("input", e => state.name = e.target.value);
-  email.addEventListener("input", e => state.email = e.target.value);
-
-  const stage = document.getElementById("gloveStage");
-  let dragging = false, lastX = 0, lastY = 0;
-
-  stage.addEventListener("pointerdown", e => {
-    dragging = true;
-    lastX = e.clientX; lastY = e.clientY;
-    stage.setPointerCapture(e.pointerId);
-  });
-  stage.addEventListener("pointermove", e => {
-    if (!dragging) return;
-    const dx = e.clientX - lastX, dy = e.clientY - lastY;
-    lastX = e.clientX; lastY = e.clientY;
-    state.ry += dx * 0.7;
-    state.rx -= dy * 0.7;
-    stage.style.transform = `rotateX(${state.rx}deg) rotateY(${state.ry}deg)`;
-  });
-  stage.addEventListener("pointerup", () => dragging = false);
-  stage.addEventListener("pointercancel", () => dragging = false);
-
-  document.getElementById("submitDesign").addEventListener("click", () => {
-    const status = document.getElementById("submitStatus");
-    if (!state.name.trim() || !state.email.trim()) {
-      status.textContent = "Please enter your name and email before submitting.";
-      return;
-    }
-    status.textContent = "Prototype only: the design data is captured in the page. Automatic email sending will be connected in the next build.";
-  });
-}
-
-window.addEventListener("hashchange", render);
-render();
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+const app=document.getElementById("app");const sidebar=document.querySelector(".sidebar");document.getElementById("menuToggle").onclick=()=>sidebar.classList.toggle("open");
+const names={training:"Custom Training Gloves",sparring:"Custom Sparring Gloves",competition:"Custom Competition Gloves",headgear:"Custom Headguard",groin:"Custom Groin Guard"};
+const sections=[["main","Main Body"],["outer-thumb","Outer Thumb"],["inner-thumb","Inner Thumb"],["outer-palm","Outer Palm"],["inner-palm","Inner Palm"],["back","Back of Glove"],["wrist","Wrist"],["cuff","Cuff"],["stitch","Stitching"]];
+const state={};sections.forEach(([id])=>state[id]="#ffffff");
+function home(){app.innerHTML=`<section class="hero"><div><div class="eyebrow">MANO A MANO / BOXING EQUIPMENT</div><h1>BUILT<br><span>FOR THE</span>FIGHT</h1><p>Premium boxing equipment and custom fight gear. Design your own Mano a Mano equipment.</p><a class="btn" href="#custom/sparring">START CUSTOMISING</a></div></section>`}
+function shop(type){let title=type==="headguard"?"Headguard":type==="groinguard"?"Groin Guard":type==="training"?"Training Gloves":type==="sparring"?"Sparring Gloves":"Competition Gloves";app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>${title}</h1><div class="page-head"><p>Premium boxing equipment. Product photography, specifications and pricing can be added when the product range is final.</p></div><div class="product-grid"><article class="product-card"><div class="product-art">${title.toUpperCase()}</div><div><h3>${title}</h3><p>PRODUCT PAGE PLACEHOLDER</p></div></article></div></section>`}
+function custom(type){const glove=["training","sparring","competition"].includes(type);const controls=glove?sections:[["shell","Outer Shell"],["padding","Padding"],["side","Side Panels"],["strap","Straps"],["stitch","Stitching"]];app.innerHTML=`<section class="customizer"><div class="custom-head"><div><div class="eyebrow">CUSTOM / ${type.toUpperCase()}</div><h1>${names[type]}</h1></div><p>Drag the glove to rotate it through 360°. This is a placeholder model based on your supplied glove references. The final model will be mapped panel-by-panel.</p></div><div class="custom-grid"><div class="viewer"><div class="viewer-note">LIVE 3D PREVIEW / WHITE BASE</div><canvas id="gloveCanvas"></canvas><div class="viewer-hint">DRAG TO ROTATE · 360° · NO ZOOM</div></div><aside class="panel"><h2>Customise</h2><div class="small">Plain white base with Mano a Mano branding. Change a colour and the 3D model updates immediately.</div><div class="swatches">${controls.map(([id,label])=>`<div class="swatch"><label>${label}</label><input type="color" data-part="${id}" value="${state[id]||"#ffffff"}"></div>`).join("")}</div><div class="form-section"><h3>Custom Text</h3><input class="field" id="customText" maxlength="18" placeholder="e.g. MACMILLAN"></div><div class="form-section"><h3>Extra Details</h3><textarea class="field" id="details" rows="5" placeholder="Any extra details or requests..."></textarea></div><div class="form-section"><h3>Your Details</h3><input class="field" id="name" placeholder="Name *"><input class="field" id="email" type="email" placeholder="Email *"><button class="btn submit" id="send" type="button">SEND DESIGN ENQUIRY</button><div class="status" id="status">Prototype: secure email/payment connection will be added later.</div></div></aside></div></section>`;init3D(type)}
+function init3D(type){const canvas=document.getElementById("gloveCanvas"),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28,1,.1,100);camera.position.set(0,.1,6.5);scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2.5));const key=new THREE.DirectionalLight(0xffffff,4);key.position.set(3,5,6);scene.add(key);const fill=new THREE.DirectionalLight(0xffffff,2);fill.position.set(-4,2,2);scene.add(fill);const g=new THREE.Group();g.rotation.set(-.08,-.5,0);scene.add(g);
+const mats={};function M(id){return mats[id]=new THREE.MeshStandardMaterial({color:state[id]||"#ffffff",roughness:.55,metalness:.02});}
+// Main glove: a soft, rounded, elongated shell with a large back and knuckle block.
+const body=new THREE.Mesh(new THREE.SphereGeometry(1.35,64,40),M("main"));body.scale.set(.92,1.22,.78);body.position.set(.1,.55,0);g.add(body);
+const backPanel=new THREE.Mesh(new THREE.SphereGeometry(1.1,56,36),M("back"));backPanel.scale.set(.9,1.18,.35);backPanel.position.set(.16,.63,.64);g.add(backPanel);
+// Four knuckle pads.
+for(let i=0;i<4;i++){const k=new THREE.Mesh(new THREE.SphereGeometry(.43,40,28),M("outer-palm"));k.scale.set(.95,.72,.72);k.position.set(-.62+i*.42,1.35,.55);g.add(k)}
+// Thumb and inner thumb.
+const thumb=new THREE.Mesh(new THREE.SphereGeometry(.57,44,30),M("outer-thumb"));thumb.scale.set(.72,1.18,.72);thumb.position.set(-1.02,.27,.32);thumb.rotation.z=-.35;g.add(thumb);
+const innerThumb=new THREE.Mesh(new THREE.SphereGeometry(.43,40,26),M("inner-thumb"));innerThumb.scale.set(.72,1.2,.72);innerThumb.position.set(-.67,.16,-.46);innerThumb.rotation.z=-.35;g.add(innerThumb);
+// Palm pad.
+const palm=new THREE.Mesh(new THREE.SphereGeometry(1,48,30),M("inner-palm"));palm.scale.set(.9,1.05,.4);palm.position.set(.18,.2,-.58);g.add(palm);
+// Wrist and cuff.
+const cuff=new THREE.Mesh(new THREE.BoxGeometry(1.62,.78,1.5),M("cuff"));cuff.position.set(.18,-1.05,0);cuff.rotation.z=-.05;g.add(cuff);
+const wrist=new THREE.Mesh(new THREE.TorusGeometry(.75,.1,14,64),M("wrist"));wrist.rotation.x=Math.PI/2;wrist.position.set(.18,-.69,0);g.add(wrist);
+// Stitching ring.
+const stitch=new THREE.Mesh(new THREE.TorusGeometry(1.02,.018,7,72),M("stitch"));stitch.scale.set(.9,1.18,1);stitch.rotation.x=Math.PI/2;stitch.position.set(.15,.55,.76);g.add(stitch);
+// Real MAM emblem texture extracted from supplied logo.
+const logoTex=new THREE.TextureLoader().load("assets/mam-emblem.png");const logoMat=new THREE.MeshBasicMaterial({map:logoTex,transparent:true});const logo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.58),logoMat);logo.position.set(.18,-1.02,.77);g.add(logo);
+// MANO A MANO text texture on back.
+const tc=document.createElement("canvas");tc.width=512;tc.height=256;const ctx=tc.getContext("2d");ctx.fillStyle="#111";ctx.font="800 42px Arial";ctx.textAlign="center";ctx.fillText("MANO A MANO",256,145);const tt=new THREE.CanvasTexture(tc);const textMat=new THREE.MeshBasicMaterial({map:tt,transparent:true});const txt=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.62),textMat);txt.position.set(.22,.65,.96);txt.rotation.z=Math.PI/2;g.add(txt);
+function apply(id,color){state[id]=color;if(mats[id])mats[id].color.set(color);}
+document.querySelectorAll("[data-part]").forEach(i=>{apply(i.dataset.part,i.value);i.addEventListener("input",e=>apply(e.target.dataset.part,e.target.value))});
+const input=document.getElementById("customText");input.addEventListener("input",()=>{ctx.clearRect(0,0,512,256);ctx.fillStyle="#111";ctx.font="800 42px Arial";ctx.textAlign="center";ctx.fillText(input.value||"MANO A MANO",256,145);tt.needsUpdate=true});
+let drag=false,lx=0,ly=0;canvas.onpointerdown=e=>{drag=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!drag)return;g.rotation.y+=(e.clientX-lx)*.012;g.rotation.x+=(e.clientY-ly)*.008;lx=e.clientX;ly=e.clientY};canvas.onpointerup=()=>drag=false;canvas.onpointercancel=()=>drag=false;
+function resize(){const r=canvas.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}resize();window.addEventListener("resize",resize);(function loop(){requestAnimationFrame(loop);renderer.render(scene,camera)})();document.getElementById("send").onclick=()=>{const n=document.getElementById("name").value.trim(),e=document.getElementById("email").value.trim();document.getElementById("status").textContent=n&&e?"Prototype only: design captured. Secure email + payment will be connected in the production build.":"Please enter your name and email."}}
+function render(){const h=location.hash.replace("#","");if(!h||h==="home")home();else if(h.startsWith("shop/"))shop(h.split("/")[1]);else if(h.startsWith("custom/"))custom(h.split("/")[1] in names?h.split("/")[1]:"sparring");else if(h==="about")app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>ABOUT</h1><div class="info-grid"><div class="info-box"><h3>The Brand</h3><p>Mano a Mano boxing equipment and custom fight gear.</p></div><div class="info-box"><h3>Custom</h3><p>Build equipment around your colours, details and identity.</p></div></div></section>`;else app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>CONTACT</h1><div class="info-grid"><div class="info-box"><h3>Enquiries</h3><p>Contact details will be added here.</p></div><div class="info-box"><h3>Custom Orders</h3><p>Use the customiser to prepare a design.</p></div></div></section>`;window.scrollTo(0,0);sidebar.classList.remove("open")}
+window.addEventListener("hashchange",render);render();
