@@ -1,36 +1,142 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
-const app=document.getElementById("app");const sidebar=document.querySelector(".sidebar");document.getElementById("menuToggle").onclick=()=>sidebar.classList.toggle("open");
-const names={training:"Custom Training Gloves",sparring:"Custom Sparring Gloves",competition:"Custom Competition Gloves",headgear:"Custom Headguard",groin:"Custom Groin Guard"};
-const sections=[["main","Main Body"],["outer-thumb","Outer Thumb"],["inner-thumb","Inner Thumb"],["outer-palm","Outer Palm"],["inner-palm","Inner Palm"],["back","Back of Glove"],["wrist","Wrist"],["cuff","Cuff"],["stitch","Stitching"]];
-const state={};sections.forEach(([id])=>state[id]="#ffffff");
-function home(){app.innerHTML=`<section class="hero"><div><div class="eyebrow">MANO A MANO / BOXING EQUIPMENT</div><h1>BUILT<br><span>FOR THE</span>FIGHT</h1><p>Premium boxing equipment and custom fight gear. Design your own Mano a Mano equipment.</p><a class="btn" href="#custom/sparring">START CUSTOMISING</a></div></section>`}
-function shop(type){let title=type==="headguard"?"Headguard":type==="groinguard"?"Groin Guard":type==="training"?"Training Gloves":type==="sparring"?"Sparring Gloves":"Competition Gloves";app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>${title}</h1><div class="page-head"><p>Premium boxing equipment. Product photography, specifications and pricing can be added when the product range is final.</p></div><div class="product-grid"><article class="product-card"><div class="product-art">${title.toUpperCase()}</div><div><h3>${title}</h3><p>PRODUCT PAGE PLACEHOLDER</p></div></article></div></section>`}
-function custom(type){const glove=["training","sparring","competition"].includes(type);const controls=glove?sections:[["shell","Outer Shell"],["padding","Padding"],["side","Side Panels"],["strap","Straps"],["stitch","Stitching"]];app.innerHTML=`<section class="customizer"><div class="custom-head"><div><div class="eyebrow">CUSTOM / ${type.toUpperCase()}</div><h1>${names[type]}</h1></div><p>Drag the glove to rotate it through 360°. This is a placeholder model based on your supplied glove references. The final model will be mapped panel-by-panel.</p></div><div class="custom-grid"><div class="viewer"><div class="viewer-note">LIVE 3D PREVIEW / WHITE BASE</div><canvas id="gloveCanvas"></canvas><div class="viewer-hint">DRAG TO ROTATE · 360° · NO ZOOM</div></div><aside class="panel"><h2>Customise</h2><div class="small">Plain white base with Mano a Mano branding. Change a colour and the 3D model updates immediately.</div><div class="swatches">${controls.map(([id,label])=>`<div class="swatch"><label>${label}</label><input type="color" data-part="${id}" value="${state[id]||"#ffffff"}"></div>`).join("")}</div><div class="form-section"><h3>Custom Text</h3><input class="field" id="customText" maxlength="18" placeholder="e.g. MACMILLAN"></div><div class="form-section"><h3>Extra Details</h3><textarea class="field" id="details" rows="5" placeholder="Any extra details or requests..."></textarea></div><div class="form-section"><h3>Your Details</h3><input class="field" id="name" placeholder="Name *"><input class="field" id="email" type="email" placeholder="Email *"><button class="btn submit" id="send" type="button">SEND DESIGN ENQUIRY</button><div class="status" id="status">Prototype: secure email/payment connection will be added later.</div></div></aside></div></section>`;init3D(type)}
-function init3D(type){const canvas=document.getElementById("gloveCanvas"),renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=THREE.SRGBColorSpace;const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(28,1,.1,100);camera.position.set(0,.1,6.5);scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2.5));const key=new THREE.DirectionalLight(0xffffff,4);key.position.set(3,5,6);scene.add(key);const fill=new THREE.DirectionalLight(0xffffff,2);fill.position.set(-4,2,2);scene.add(fill);const g=new THREE.Group();g.rotation.set(-.08,-.5,0);scene.add(g);
-const mats={};function M(id){return mats[id]=new THREE.MeshStandardMaterial({color:state[id]||"#ffffff",roughness:.55,metalness:.02});}
-// Main glove: a soft, rounded, elongated shell with a large back and knuckle block.
-const body=new THREE.Mesh(new THREE.SphereGeometry(1.35,64,40),M("main"));body.scale.set(.92,1.22,.78);body.position.set(.1,.55,0);g.add(body);
-const backPanel=new THREE.Mesh(new THREE.SphereGeometry(1.1,56,36),M("back"));backPanel.scale.set(.9,1.18,.35);backPanel.position.set(.16,.63,.64);g.add(backPanel);
-// Four knuckle pads.
-for(let i=0;i<4;i++){const k=new THREE.Mesh(new THREE.SphereGeometry(.43,40,28),M("outer-palm"));k.scale.set(.95,.72,.72);k.position.set(-.62+i*.42,1.35,.55);g.add(k)}
-// Thumb and inner thumb.
-const thumb=new THREE.Mesh(new THREE.SphereGeometry(.57,44,30),M("outer-thumb"));thumb.scale.set(.72,1.18,.72);thumb.position.set(-1.02,.27,.32);thumb.rotation.z=-.35;g.add(thumb);
-const innerThumb=new THREE.Mesh(new THREE.SphereGeometry(.43,40,26),M("inner-thumb"));innerThumb.scale.set(.72,1.2,.72);innerThumb.position.set(-.67,.16,-.46);innerThumb.rotation.z=-.35;g.add(innerThumb);
-// Palm pad.
-const palm=new THREE.Mesh(new THREE.SphereGeometry(1,48,30),M("inner-palm"));palm.scale.set(.9,1.05,.4);palm.position.set(.18,.2,-.58);g.add(palm);
-// Wrist and cuff.
-const cuff=new THREE.Mesh(new THREE.BoxGeometry(1.62,.78,1.5),M("cuff"));cuff.position.set(.18,-1.05,0);cuff.rotation.z=-.05;g.add(cuff);
-const wrist=new THREE.Mesh(new THREE.TorusGeometry(.75,.1,14,64),M("wrist"));wrist.rotation.x=Math.PI/2;wrist.position.set(.18,-.69,0);g.add(wrist);
-// Stitching ring.
-const stitch=new THREE.Mesh(new THREE.TorusGeometry(1.02,.018,7,72),M("stitch"));stitch.scale.set(.9,1.18,1);stitch.rotation.x=Math.PI/2;stitch.position.set(.15,.55,.76);g.add(stitch);
-// Real MAM emblem texture extracted from supplied logo.
-const logoTex=new THREE.TextureLoader().load("assets/mam-emblem.png");const logoMat=new THREE.MeshBasicMaterial({map:logoTex,transparent:true});const logo=new THREE.Mesh(new THREE.PlaneGeometry(.9,.58),logoMat);logo.position.set(.18,-1.02,.77);g.add(logo);
-// MANO A MANO text texture on back.
-const tc=document.createElement("canvas");tc.width=512;tc.height=256;const ctx=tc.getContext("2d");ctx.fillStyle="#111";ctx.font="800 42px Arial";ctx.textAlign="center";ctx.fillText("MANO A MANO",256,145);const tt=new THREE.CanvasTexture(tc);const textMat=new THREE.MeshBasicMaterial({map:tt,transparent:true});const txt=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.62),textMat);txt.position.set(.22,.65,.96);txt.rotation.z=Math.PI/2;g.add(txt);
-function apply(id,color){state[id]=color;if(mats[id])mats[id].color.set(color);}
-document.querySelectorAll("[data-part]").forEach(i=>{apply(i.dataset.part,i.value);i.addEventListener("input",e=>apply(e.target.dataset.part,e.target.value))});
-const input=document.getElementById("customText");input.addEventListener("input",()=>{ctx.clearRect(0,0,512,256);ctx.fillStyle="#111";ctx.font="800 42px Arial";ctx.textAlign="center";ctx.fillText(input.value||"MANO A MANO",256,145);tt.needsUpdate=true});
-let drag=false,lx=0,ly=0;canvas.onpointerdown=e=>{drag=true;lx=e.clientX;ly=e.clientY;canvas.setPointerCapture(e.pointerId)};canvas.onpointermove=e=>{if(!drag)return;g.rotation.y+=(e.clientX-lx)*.012;g.rotation.x+=(e.clientY-ly)*.008;lx=e.clientX;ly=e.clientY};canvas.onpointerup=()=>drag=false;canvas.onpointercancel=()=>drag=false;
-function resize(){const r=canvas.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}resize();window.addEventListener("resize",resize);(function loop(){requestAnimationFrame(loop);renderer.render(scene,camera)})();document.getElementById("send").onclick=()=>{const n=document.getElementById("name").value.trim(),e=document.getElementById("email").value.trim();document.getElementById("status").textContent=n&&e?"Prototype only: design captured. Secure email + payment will be connected in the production build.":"Please enter your name and email."}}
-function render(){const h=location.hash.replace("#","");if(!h||h==="home")home();else if(h.startsWith("shop/"))shop(h.split("/")[1]);else if(h.startsWith("custom/"))custom(h.split("/")[1] in names?h.split("/")[1]:"sparring");else if(h==="about")app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>ABOUT</h1><div class="info-grid"><div class="info-box"><h3>The Brand</h3><p>Mano a Mano boxing equipment and custom fight gear.</p></div><div class="info-box"><h3>Custom</h3><p>Build equipment around your colours, details and identity.</p></div></div></section>`;else app.innerHTML=`<section class="page"><div class="eyebrow">MANO A MANO BOXING</div><h1>CONTACT</h1><div class="info-grid"><div class="info-box"><h3>Enquiries</h3><p>Contact details will be added here.</p></div><div class="info-box"><h3>Custom Orders</h3><p>Use the customiser to prepare a design.</p></div></div></section>`;window.scrollTo(0,0);sidebar.classList.remove("open")}
+
+const app=document.getElementById("app");
+const sidebar=document.getElementById("sidebar");
+document.getElementById("mobileMenu").onclick=()=>sidebar.classList.toggle("open");
+
+const palette=[
+["blue","#0057b8"],["tiffany blue","#81d8d0"],["teal blue","#008c95"],["sky blue","#66c7e8"],
+["red","#d40000"],["ruby red","#9b111e"],["white","#f5f5f5"],["silver","#a7a7a7"],["black","#090909"],
+["navy","#071a4d"],["orange","#f36a21"],["purple","#6f2da8"],["light purple","#b18bd1"],["dark grey","#3e3e3e"],
+["light grey","#a9a9a9"],["deep blue","#003b8f"],["admiral blue","#1d3f8a"],["space blue","#243b64"],
+["blue grey","#607d8b"],["dark maroon","#4a0f19"],["gold","#c9a227"],["yellow","#ffd400"],["neon yellow","#dfff00"],
+["clover","#2e8b57"],["brown","#704214"],["green","#16833b"],["lime green","#32cd32"],["forest green","#0b5d1e"],
+["WBC green","#00843d"],["olive green","#708238"],["pink","#ff69b4"],["hot pink","#ff1493"],["burgundy","#800020"],
+["maroon","#800000"],["skin","#c98f72"]
+];
+
+const products={
+ training:"Custom Training Gloves",sparring:"Custom Sparring Gloves",contest:"Custom Contest Gloves",
+ headgear:"Custom Headguard",groin:"Custom Groin Guard"
+};
+
+const state={
+ body:"#f5f5f5",logo:"#f5f5f5",wrist:true,logo:true,logoRemoved:false
+};
+
+function swatches(id, current){
+ return `<div class="swatches">${palette.map(([n,c])=>`<button class="swatch ${current===c?"active":""}" style="background:${c}" data-role="${id}" data-value="${c}" title="${n}"><span>${n}</span></button>`).join("")}</div>`;
+}
+function shell(title,text,content){return `<section class="page"><div class="page-head"><div class="eyebrow">MANO A MANO BOXING</div><h1>${title}</h1><p>${text}</p></div>${content}</section>`}
+function shop(type){return shell(type==="contest"?"Contest Gloves":type==="headguard"?"Headguard":type==="groinguard"?"Groin Guard":`${type[0].toUpperCase()+type.slice(1)} Gloves`,"Product catalogue placeholder — prices, product photography and purchasing will be added here.",`<div class="product-grid"><article class="product-card"><div class="product-art">${(type||"PRODUCT").toUpperCase()}</div><h3>MANO A MANO</h3><p>PRODUCT DETAILS TO BE ADDED</p></article></div>`)}
+
+function customizer(type){
+ const isContest=type==="contest";
+ const isGlove=["contest","training","sparring"].includes(type);
+ const title=products[type];
+ return `<section class="customizer">
+ <div class="custom-head"><div><div class="eyebrow">CUSTOM / ${type.toUpperCase()}</div><h1>${title}</h1></div>
+ <p>Choose from Mano a Mano's fixed colour range. Drag the glove to rotate it. No zoom.</p></div>
+ <div class="custom-layout">
+  <div class="viewer"><div class="viewer-label">LIVE 3D PREVIEW / WHITE BASE</div><canvas id="gloveCanvas"></canvas><div class="viewer-hint">DRAG TO ROTATE · 360° · NO ZOOM</div></div>
+  <aside class="panel"><h2>Design</h2><div class="small">These are the only colours available from Mano a Mano.</div>
+   ${isGlove?`<div class="control-group"><h3>Glove Colour</h3>${swatches("body",state.body)}</div>`:"<div class=\"control-group\"><h3>Base Colour</h3>${swatches("body",state.body)}</div>"}
+   ${isGlove?`<div class="control-group"><h3>Logo</h3>
+     <div class="toggle-row"><label>${isContest?"Contest logo · 8 / 10 / 12oz":"Training / sparring logo · 14 / 16oz"}</label><select id="logoChoice"><option value="keep">Keep logo</option><option value="remove">Remove logo — +£10</option></select></div>
+     <div id="logoColorWrap"><div class="small">${isContest?"Only the two grey M shapes change colour. The MANO A MANO text stays fixed.":"The complete M–M logo and MANO A MANO writing change to the selected colour."}</div>${swatches("logo",state.logo)}</div>
+   </div>
+   <div class="control-group"><h3>Wrist Patch</h3>
+     <div class="toggle-row"><label>Fixed patch · cannot be recoloured</label><select id="wristChoice"><option value="keep">Keep patch</option><option value="remove">Remove patch — Free</option></select></div>
+   </div>`:""}
+   ${isGlove?`<div class="control-group"><h3>Extra Details</h3><textarea class="text-control" id="details" rows="4" placeholder="Any extra details or requests..."></textarea></div>
+   <div class="control-group"><h3>Your Details</h3><input class="text-control" id="customerName" placeholder="Name *"><input class="text-control" id="customerEmail" type="email" placeholder="Email *"><button class="btn submit" id="submitDesign">SUBMIT DESIGN</button><div class="status" id="status">Prototype: payment and automatic email delivery are not connected yet.</div></div>`:""}
+  </aside>
+ </div></section>`;
+}
+
+function render(){
+ const hash=location.hash.slice(1);
+ if(!hash||hash==="home"){
+   app.innerHTML=`<section class="hero"><div><div class="eyebrow">MANO A MANO / BOXING EQUIPMENT</div><h1>BUILT<br><span>FOR THE</span>FIGHT</h1><p>Premium boxing equipment and a live custom design experience.</p><a class="btn" href="#custom/sparring">START CUSTOMISING</a></div></section>`;
+ }else if(hash.startsWith("shop/")) app.innerHTML=shop(hash.split("/")[1]);
+ else if(hash.startsWith("custom/")){const type=hash.split("/")[1];app.innerHTML=customizer(products[type]?type:"sparring");if(["contest","training","sparring"].includes(type))initGlove(type);}
+ else if(hash==="about") app.innerHTML=shell("About","Mano a Mano boxing equipment.",`<div class="info-grid"><div class="info-box"><h3>Custom Equipment</h3><p>Design your equipment using the fixed Mano a Mano colour range.</p></div><div class="info-box"><h3>Built For The Fight</h3><p>Product information and brand story will be added here.</p></div></div>`);
+ else app.innerHTML=shell("Contact","Contact details will be added here.",`<div class="info-grid"><div class="info-box"><h3>Get In Touch</h3><p>Custom orders and enquiries will be handled here.</p></div></div>`);
+ sidebar.classList.remove("open");window.scrollTo(0,0);
+}
+
+function initGlove(type){
+ const canvas=document.getElementById("gloveCanvas");
+ const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(canvas.clientWidth,canvas.clientHeight,false);renderer.outputColorSpace=THREE.SRGBColorSpace;
+ const scene=new THREE.Scene(), camera=new THREE.PerspectiveCamera(30,canvas.clientWidth/canvas.clientHeight,.1,100);camera.position.set(0,.15,6.7);
+ scene.add(new THREE.AmbientLight(0xffffff,2.4));const key=new THREE.DirectionalLight(0xffffff,4);key.position.set(3,5,5);scene.add(key);const rim=new THREE.DirectionalLight(0xffffff,2);rim.position.set(-4,2,-3);scene.add(rim);
+ const glove=new THREE.Group();glove.rotation.y=-.35;scene.add(glove);
+
+ const mats={};
+ const M=(id,color="#f5f5f5",rough=.55)=>mats[id]=new THREE.MeshStandardMaterial({color,roughness:rough,metalness:.02});
+ // Procedural approximation of the supplied silhouette: long cuff, tall rear, large padded fist, curved thumb.
+ const body=new THREE.Mesh(new THREE.SphereGeometry(1.25,64,40),M("body"));body.scale.set(1.02,1.38,.78);body.position.set(0,.72,0);glove.add(body);
+ const top=new THREE.Mesh(new THREE.SphereGeometry(.88,56,32),M("body"));top.scale.set(1.22,.55,.92);top.position.set(.05,1.72,.05);glove.add(top);
+ const cuff=new THREE.Mesh(new THREE.CapsuleGeometry(.78,.9,12,32),M("body"));cuff.scale.set(1.02,1.05,.82);cuff.position.set(.02,-1.03,0);glove.add(cuff);
+ const thumb=new THREE.Mesh(new THREE.CapsuleGeometry(.34,1.05,12,28),M("body"));thumb.rotation.z=-1.05;thumb.rotation.x=-.12;thumb.scale.set(1.0,1.05,.9);thumb.position.set(-.92,.65,.28);glove.add(thumb);
+ const side=new THREE.Mesh(new THREE.SphereGeometry(.58,40,24),M("body"));side.scale.set(.55,1.2,.72);side.position.set(.86,.65,.18);glove.add(side);
+ const seam=new THREE.Mesh(new THREE.TorusGeometry(.83,.018,8,64),M("seam","#d8d8d8",.8));seam.scale.set(1,1.3,1);seam.rotation.x=Math.PI/2;seam.position.y=-.45;glove.add(seam);
+
+ // Logo planes are placed on the glove's visible outer face as a prototype.
+ const loader=new THREE.TextureLoader();
+ function planeTexture(path,tint="#ffffff"){
+   const tx=loader.load(path); tx.colorSpace=THREE.SRGBColorSpace;
+   const material=new THREE.MeshBasicMaterial({map:tx,transparent:true});
+   return material;
+ }
+ const contestLogo=new THREE.Mesh(new THREE.PlaneGeometry(1.25,.56),planeTexture("assets/contest-logo-full.png","#fff"));
+ contestLogo.position.set(.0,.78,.79);contestLogo.rotation.y=0;glove.add(contestLogo);
+ const trainingLogo=new THREE.Mesh(new THREE.PlaneGeometry(1.3,.62),planeTexture("assets/training-logo-mask.png","#fff"));
+ trainingLogo.position.set(.0,.78,.79);glove.add(trainingLogo);
+ const wristPatch=new THREE.Mesh(new THREE.PlaneGeometry(.72,.38),planeTexture("assets/wrist-patch.png","#fff"));
+ wristPatch.position.set(.02,-1.03,.69);glove.add(wristPatch);
+
+ function setBody(c){state.body=c;mats.body.color.set(c);mats.seam.color.set("#d6d6d6")}
+ function setLogo(c){
+   state.logo=c;
+   // For this prototype the supplied logo is represented as a tintable mesh.
+   const mesh=type==="contest"?contestLogo:trainingLogo;
+   mesh.material.color.set(c);
+   if(type==="contest"){
+     // The contest source contains white text + grey M. Full selective masking is
+     // represented by the logo-color control in the UI; final GLB will use separate decals.
+     mesh.material.opacity=1;
+   }
+ }
+ function setVisibility(){
+   contestLogo.visible=type==="contest"&&!state.logoRemoved;
+   trainingLogo.visible=(type==="training"||type==="sparring")&&!state.logoRemoved;
+   wristPatch.visible=state.wrist;
+ }
+ setBody(state.body);setLogo(state.logo);setVisibility();
+
+ document.querySelectorAll("[data-role]").forEach(btn=>{
+   btn.onclick=()=>{const role=btn.dataset.role,val=btn.dataset.value;
+     if(role==="body")setBody(val); if(role==="logo")setLogo(val);
+     document.querySelectorAll(`[data-role="${role}"]`).forEach(x=>x.classList.toggle("active",x===btn));
+   };
+ });
+ const logoChoice=document.getElementById("logoChoice"),wrap=document.getElementById("logoColorWrap");
+ logoChoice.onchange=()=>{state.logoRemoved=logoChoice.value==="remove";setVisibility();};
+ document.getElementById("wristChoice").onchange=e=>{state.wrist=e.target.value==="keep";setVisibility()};
+ document.getElementById("submitDesign").onclick=()=>{
+   const name=document.getElementById("customerName").value.trim(),email=document.getElementById("customerEmail").value.trim();
+   document.getElementById("status").textContent=name&&email?"Prototype captured. Stripe checkout + automatic design email will be connected in the production build.":"Name and email are required.";
+ };
+
+ let drag=false,lastX=0,lastY=0;
+ canvas.onpointerdown=e=>{drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)};
+ canvas.onpointermove=e=>{if(!drag)return;glove.rotation.y+=(e.clientX-lastX)*.011;glove.rotation.x+=(e.clientY-lastY)*.007;glove.rotation.x=Math.max(-.6,Math.min(.6,glove.rotation.x));lastX=e.clientX;lastY=e.clientY};
+ canvas.onpointerup=()=>drag=false;canvas.onpointercancel=()=>drag=false;
+
+ function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
+ window.addEventListener("resize",resize);
+ function loop(){requestAnimationFrame(loop);renderer.render(scene,camera)}loop();
+}
 window.addEventListener("hashchange",render);render();
