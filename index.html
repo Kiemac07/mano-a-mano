@@ -1,26 +1,20 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mano a Mano Boxing</title>
-<link rel="icon" href="assets/logo.png">
-<link rel="stylesheet" href="css/style.css">
-</head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Mano a Mano Boxing — Custom Gloves</title><meta name="description" content="Mano a Mano Boxing custom glove configurator"><link rel="stylesheet" href="css/styles.css"></head>
 <body>
-<!-- Legacy site shell: kept for Home / Shop / About / Contact. Custom pages use the dedicated configurator shell. -->
-<div id="legacyShell">
-  <aside class="sidebar"><div class="brand"><img src="assets/logo.png"></div><button id="menuToggle">☰</button><nav>
-    <a href="#home">HOME</a>
-    <details><summary>GLOVES</summary><a href="#shop/training">Training Gloves</a><a href="#shop/sparring">Sparring Gloves</a><a href="#shop/competition">Competition Gloves</a></details>
-    <a href="#shop/headguard">HEADGUARD</a><a href="#shop/groinguard">GROIN GUARD</a>
-    <details><summary>CUSTOM</summary><a href="#custom/training">Training Gloves</a><a href="#custom/sparring">Sparring Gloves</a><a href="#custom/competition">Competition Gloves</a><a href="#custom/headgear">Headguard</a><a href="#custom/groin">Groin Guard</a></details>
-    <a href="#about">ABOUT</a><a href="#contact">CONTACT</a>
-  </nav></aside>
-  <main class="site"><header class="topbar">MANO A MANO / BOXING EQUIPMENT</header><section id="app"></section></main>
-</div>
-
-<div id="customShell" hidden></div>
-<script src="js/app.js"></script>
-</body>
-</html>
+<header class="mobile-head"><button id="menuBtn" class="icon-btn">☰</button><div class="mini-brand"><b>MM</b><span>MANO A MANO<small>BOXING · EST 2026</small></span></div><button class="icon-btn">Bag <span class="bag-count">0</span></button></header>
+<aside class="sidebar" id="sidebar"><div class="brand"><div class="brand-mark">MM</div><div><b>MANO A MANO</b><small>BOXING · EST 2026</small></div></div><nav><a href="#home">Home</a><details open><summary>Gloves</summary><a href="#shop">Training Gloves</a><a href="#shop">Sparring Gloves</a><a href="#shop">Contest Gloves</a></details><a href="#headguard">Headguard</a><a href="#groin">Groin Guard</a><details><summary>Custom</summary><a class="active" href="#custom">Training Gloves</a><a href="#custom">Sparring Gloves</a><a href="#custom">Contest Gloves</a><a href="#custom">Headguard</a><a href="#custom">Groin Guard</a></details><a href="#about">About</a><a href="#contact">Contact</a></nav><div class="side-foot">BUILT BY FIGHTERS<br>FOR FIGHTERS</div></aside>
+<main><div class="topbar"><span>HOME / CUSTOM / GLOVES</span><div>SEARCH &nbsp; ACCOUNT &nbsp; BAG (0)</div></div>
+<section class="intro"><div><p class="eyebrow">MANO A MANO BOXING · CUSTOM SERIES</p><h1>DESIGN YOUR <i>GLOVES.</i></h1><p>Choose your glove, build every panel and create your own pair.</p></div><div class="type-tabs" id="typeTabs"><button data-type="contest" class="active">Contest</button><button data-type="training">Training</button><button data-type="sparring">Sparring</button></div></section>
+<section class="builder">
+<div class="viewer-card"><div class="viewer-top"><div><span class="kicker">CURRENT GLOVE</span><h2 id="gloveLabel">LEFT GLOVE</h2></div><div class="glove-actions"><button id="switchBtn">Switch to right glove</button><button id="copyBtn">Copy to both gloves</button></div></div><div class="template-stage"><div class="template-tag" id="templateTag">CONTEST · LACES</div><div class="template-wrap"><img id="templateImg" src="assets/contest.jpg" alt="Custom glove template"><div class="color-layer" id="colorLayer"></div><div class="line-layer" id="lineLayer"></div><div class="logo-layer" id="logoLayer"></div></div></div><div class="viewer-note"><span>Template visualiser</span><span>Colours sit underneath logos & stitching</span></div></div>
+<div class="panel">
+<div class="panel-block"><span class="kicker">GLOVE TYPE</span><div class="seg three" id="typeBtns"><button data-type="contest" class="active">Contest</button><button data-type="training">Training</button><button data-type="sparring">Sparring</button></div></div>
+<div class="panel-block" id="options"></div>
+<div class="panel-block"><div class="block-head"><span class="kicker">CUSTOMISE</span><b id="areaTitle">Palm Back</b></div><div class="areas" id="areas"></div></div>
+<div class="palette-card" id="paletteCard"><div class="palette-head"><div><span class="kicker">SELECT COLOUR</span><b id="paletteTitle">Palm Back</b></div><button id="closePalette">×</button></div><div class="palette" id="palette"></div></div>
+<div class="panel-block"><div class="block-head"><span class="kicker">LOGO & DETAILS</span></div><div id="logoOptions"></div></div>
+<div class="panel-block"><span class="kicker">CUSTOM TEXT</span><div class="text-row"><input id="customText" maxlength="28" placeholder="Optional text"><button id="textToggle">Add</button></div><small>Custom text is included in the design enquiry.</small></div>
+<div class="panel-block"><span class="kicker">EXTRA DETAILS</span><textarea id="details" placeholder="Any extra details, ideas or specific requests..."></textarea></div>
+<div class="panel-block"><span class="kicker">YOUR DETAILS</span><div class="inputs"><input id="name" placeholder="Full name *"><input id="email" type="email" placeholder="Email address *"></div></div>
+<div class="checkout"><div class="price-row"><span>Custom glove price</span><strong id="price">£125</strong></div><div id="fee" class="fee hidden">Logo removal fee: +£10</div><button id="sendBtn" class="send">SEND DESIGN ENQUIRY <span>→</span></button></div>
+</div></section></main><div id="toast" class="toast"></div><script src="js/app.js"></script></body></html>

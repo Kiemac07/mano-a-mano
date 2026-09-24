@@ -1,96 +1,68 @@
-(function(){
-const $=s=>document.querySelector(s), app=$('#app'), legacy=$('#legacyShell'), customShell=$('#customShell');
-const types={training:'Custom Training Gloves',sparring:'Custom Sparring Gloves',competition:'Custom Competition Gloves',headgear:'Custom Headguard',groin:'Custom Groin Guard'};
-const sections=['Palm Back','Wrist Back','Thumb Up','Thumb Middle','Thumb Down','Thumb In','Thumb Strip','Thumb Attachment','Palm In','Palm Out','Piping','Stitches','Laces'];
-const frames=['6221','6222','6223','6224','6225','6226','6227','6228','6229','6230','6231'];
-const palette=[['blue','#2563eb'],['tiffany blue','#3ab7d6'],['teal blue','#0f9d9a'],['sky blue','#67c7ef'],['red','#ef233c'],['ruby red','#9b111e'],['white','#ffffff'],['silver','#c0c0c0'],['black','#050505'],['navy','#0b1f4d'],['orange','#f97316'],['purple','#7c3aed'],['light purple','#b794f4'],['dark grey','#3a3a3a'],['light grey','#b8b8b8'],['deep blue','#173ea5'],['admiral blue','#1f4fa3'],['space blue','#0d3b66'],['blue grey','#607d8b'],['dark maroon','#4b0710'],['gold','#d4af37'],['yellow','#ffd60a'],['neon yellow','#d9ff00'],['clover','#2e8b57'],['brown','#6b3f24'],['green','#16a34a'],['lime green','#84cc16'],['forest green','#14532d'],['wbc green','#006b3c'],['olive green','#708238'],['pink','#ec4899'],['hot pink','#ff1493'],['burgundy','#800020'],['maroon','#800000'],['skin','#d2a679']];
-const cname=c=>{const p=palette.find(x=>x[1]===c);return p?p[0]:c};
-function legacyRender(){
- const h=location.hash.slice(1)||'home';
- if(h.startsWith('custom/')){renderCustomizer(h.split('/')[1]);return;}
- customShell.hidden=true;legacy.style.display='block';
- if(h==='home') app.innerHTML='<section class="hero"><div><div class="eyebrow">MANO A MANO / BOXING EQUIPMENT</div><h1>BUILT<br><span>FOR THE</span>FIGHT</h1><p>Premium boxing equipment with a dedicated custom design experience.</p><a class="btn" href="#custom/sparring">START CUSTOMISING</a></div></section>';
- else if(h.startsWith('shop/')){let n=h.split('/')[1].replace('groinguard','Groin Guard');app.innerHTML='<section class="page"><div class="page-head"><div class="eyebrow">MANO A MANO</div><h1>'+n.toUpperCase()+'</h1><p>Product page placeholder. Pricing, sizes, photography and checkout will be added here.</p></div><div class="grid"><div class="card"><div class="art">PRODUCT</div><h2>'+n+'</h2></div></div></section>'}
- else app.innerHTML='<section class="page"><div class="page-head"><div class="eyebrow">MANO A MANO</div><h1>'+h.toUpperCase()+'</h1><p>Content placeholder.</p></div></section>';
- window.scrollTo(0,0);
-}
-function renderCustomizer(route){
- legacy.style.display='none'; customShell.hidden=false;
- const initialType=route==='competition'?'contest':route==='training'?'training':'sparring';
- customShell.innerHTML=`<div class="cx"><header class="cx-header"><div class="cx-brand"><img src="assets/logo.png"></div><nav class="cx-nav"><a href="#home">HOME</a><a href="#shop/training">SHOP</a><a class="active" href="#custom/${route}">CUSTOM GLOVES</a><a href="#about">OUR STORY</a><a href="#contact">CONTACT</a></nav><div class="cx-icons"><span>⌕</span><span>♙</span><span>♧</span></div><div class="cx-tagline">BUILT BY FIGHTERS<br>FOR FIGHTERS</div><button class="cx-menu" id="cxMenu">☰</button></header><div class="cx-main"><aside class="cx-left"><h1>CUSTOMISE YOUR GLOVES</h1><div class="cx-intro">Select a section below to change the colour, add text or adjust your options.</div><div class="cx-sections" id="cxSections"></div><div class="cx-tools"><button class="cx-tool" id="cxLogoTool">▣ &nbsp; Logo Options</button><button class="cx-tool" id="cxPatchTool">◫ &nbsp; Wrist Patch</button><button class="cx-tool" id="cxTextTool">T &nbsp; Add Custom Text</button></div><div class="cx-picker" id="cxPicker" hidden></div></aside><section class="cx-center"><div class="cx-viewer" id="cxViewer"><div class="cx-help"><strong>Rotate View</strong>Drag left or right to rotate</div><div class="cx-stage"><div class="cx-frame-wrap" id="cxFrameWrap"><img class="cx-frame" id="cxFrame"><div class="cx-layer" id="cxLayer"></div><div class="cx-custom-text" id="cxText"></div></div></div><div class="cx-drag-label">DRAG TO ROTATE · 360° VIEW</div><div class="cx-view-controls" id="cxViews"></div></div></section><aside class="cx-right"><div class="cx-block"><h2>GLOVE TYPE</h2><div class="cx-row" id="cxTypeRow"><button class="cx-choice" data-type="contest">Contest</button><button class="cx-choice" data-type="sparring">Sparring</button><button class="cx-choice" data-type="training">Training</button></div><div class="cx-row" id="cxWeightRow" style="margin-top:8px"></div></div><div class="cx-block"><h3 id="cxLogoTitle">LOGO OPTION</h3><div class="cx-logo-card"><img id="cxLogoPreview"></div><div style="font-size:9px;color:#aaa;margin-top:7px">Logo colour</div><div class="cx-color-select" id="cxLogoColors"></div><div class="cx-switchline"><button class="cx-switch on" id="cxLogoSwitch"></button><span id="cxLogoSwitchText">Main logo included</span></div><div class="cx-smallnote">Contest gloves: only the two M shapes change colour; MANO A MANO stays white. Training / sparring: the entire logo changes colour.</div></div><div class="cx-block"><h3>WRIST PATCH (ALL GLOVES)</h3><div class="cx-patch-card"><img src="assets/wrist-patch-transparent.png"></div><div class="cx-switchline"><button class="cx-switch on" id="cxPatchSwitch"></button><span>Keep wrist patch</span></div><div class="cx-smallnote">Fixed colour. Removing the patch is free.</div></div><div class="cx-block"><h3>CUSTOM TEXT</h3><input class="cx-input" id="cxTextInput" placeholder="Enter your text (e.g. Name, Nickname)"><button class="cx-choice" id="cxAddText" style="width:100%;margin-top:7px">ADD TEXT TO GLOVE</button><div class="cx-smallnote">After adding, drag the text directly on the glove to position it.</div></div><div class="cx-block"><h3>YOUR DETAILS</h3><input class="cx-input" id="cxName" placeholder="Name"><input class="cx-input" id="cxEmail" type="email" placeholder="Email"><textarea class="cx-area" id="cxExtra" placeholder="Extra details"></textarea></div><div class="cx-block"><div class="cx-price">£<span id="cxPrice">125</span> <small id="cxPriceNote">starting price</small></div><button class="cx-send" id="cxSend">SEND DESIGN</button><div class="cx-summary" id="cxSummary"></div><div class="cx-secure"><span>Worldwide Shipping</span><span>Secure Checkout</span></div></div></aside></div></div>`;
- initCustomizer(initialType);
-}
-function initCustomizer(type){
- let currentType=type, weight=type==='contest'?'8oz':'14oz', view=0, logoOn=true, patchOn=true, logoColor='#050505', activeSection=null, rotating=false,lastX=0;
- const colors={};sections.forEach(s=>colors[s]='#ffffff');
- const textState={show:false,text:'',positions:{}};
- const E=id=>document.getElementById(id);
- const frameName=()=>frames[view];
- function renderSections(){E('cxSections').innerHTML=sections.map((s,i)=>`<button class="cx-section ${activeSection===s?'active':''}" data-s="${s}"><span class="cx-mini"><img src="assets/frames/${frames[i%frames.length]}.jpg"></span><span>${s}</span><span class="cx-arrow">›</span></button>`).join('');document.querySelectorAll('.cx-section').forEach(b=>b.onclick=()=>openPicker(b.dataset.s));}
- function openPicker(section){activeSection=section;renderSections();const p=E('cxPicker');p.hidden=false;p.innerHTML=`<div class="cx-picker-head"><h3>${section} Colour</h3><button class="cx-picker-close" id="cxClose">×</button></div><div class="cx-swatches">${palette.map(([n,c])=>`<button class="cx-swatch ${colors[section]===c?'active':''}" title="${n}" data-c="${c}" style="background:${c};${['white','silver','light grey','yellow','neon yellow','gold','skin','sky blue','tiffany blue'].includes(n)?'border-color:#777':''}"><span>${n}</span></button>`).join('')}</div>`;E('cxClose').onclick=()=>{p.hidden=true;activeSection=null;renderSections()};p.querySelectorAll('.cx-swatch').forEach(b=>b.onclick=()=>{colors[section]=b.dataset.c;update();openPicker(section)});}
- function typeUI(){document.querySelectorAll('#cxTypeRow .cx-choice').forEach(b=>b.classList.toggle('active',b.dataset.type===currentType));const ws=currentType==='contest'?['8oz','10oz','12oz']:['14oz','16oz'];if(!ws.includes(weight))weight=ws[0];E('cxWeightRow').innerHTML=ws.map(w=>`<button class="cx-choice ${weight===w?'active':''}" data-w="${w}">${w}</button>`).join('');document.querySelectorAll('#cxWeightRow .cx-choice').forEach(b=>b.onclick=()=>{weight=b.dataset.w;update()});E('cxLogoTitle').textContent=currentType==='contest'?'LOGO OPTION (CONTEST GLOVES)':'LOGO OPTION (TRAINING / SPARRING)';E('cxLogoPreview').src=currentType==='contest'?'assets/contest-logo.jpg':'assets/training-logo.png';renderLogoDots();}
- function renderLogoDots(){E('cxLogoColors').innerHTML=palette.map(([n,c])=>`<button class="cx-dot ${logoColor===c?'active':''}" title="${n}" data-c="${c}" style="background:${c};${n==='white'?'border-color:#777':''}"></button>`).join('');E('cxLogoColors').querySelectorAll('.cx-dot').forEach(b=>b.onclick=()=>{logoColor=b.dataset.c;update()});}
- function renderViews(){E('cxViews').innerHTML=frames.map((f,i)=>`<button class="cx-view-btn ${i===view?'active':''}" data-v="${i}"><img src="assets/frames/${f}.jpg"></button>`).join('');document.querySelectorAll('.cx-view-btn').forEach(b=>b.onclick=()=>{view=(+b.dataset.v+frames.length)%frames.length;update()});}
- const shapeMap={
-  'Palm Back':'polygon(8% 5%,92% 5%,90% 51%,62% 57%,20% 52%,8% 35%)','Wrist Back':'polygon(17% 50%,84% 50%,83% 95%,18% 95%)','Thumb Up':'polygon(58% 9%,94% 15%,96% 52%,70% 55%,57% 33%)','Thumb Middle':'polygon(47% 12%,81% 15%,86% 48%,54% 50%)','Thumb Down':'polygon(46% 28%,89% 22%,92% 60%,60% 64%)','Thumb In':'polygon(11% 23%,55% 18%,66% 55%,17% 65%)','Thumb Strip':'polygon(42% 12%,64% 12%,64% 73%,44% 73%)','Thumb Attachment':'polygon(50% 42%,79% 43%,83% 69%,53% 69%)','Palm In':'polygon(12% 30%,59% 30%,61% 74%,16% 74%)','Palm Out':'polygon(46% 25%,90% 29%,88% 74%,48% 74%)','Piping':'polygon(10% 49%,90% 49%,90% 56%,10% 56%)','Stitches':'polygon(43% 40%,58% 40%,58% 91%,43% 91%)','Laces':'polygon(44% 61%,56% 61%,56% 96%,44% 96%)'};
- const placements={
-  '6221':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
-  '6222':{logo:null,patch:{x:50,y:84,w:50,h:11,show:true}},
-  '6223':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
-  '6224':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
-  '6225':{logo:null,patch:{x:57,y:84,w:46,h:11,show:true}},
-  '6226':{logo:{x:59,y:29,w:32,h:29,show:true},patch:{x:68,y:86,w:31,h:10,show:true}},
-  '6227':{logo:{x:60,y:29,w:31,h:29,show:true},patch:{x:69,y:86,w:30,h:10,show:true}},
-  '6228':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
-  '6229':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}},
-  '6230':{logo:{x:50,y:28,w:40,h:29,show:true},patch:{x:50,y:87,w:48,h:10,show:true}},
-  '6231':{logo:null,patch:{x:50,y:84,w:52,h:11,show:true}}
- };
- // The logo is pinned to the glove surface by view. Contest uses the right-hand side;
- // training/sparring uses the centre. The wrist patch is pinned across the visible wrist/cuff.
- const logoPlacements={
-   contest:{
-     '6226':{x:59,y:29,w:32,h:29,show:true},
-     '6227':{x:60,y:29,w:31,h:29,show:true}
-   },
-   training:{
-     '6226':{x:50,y:29,w:40,h:29,show:true},
-     '6227':{x:50,y:29,w:40,h:29,show:true},
-     '6230':{x:50,y:28,w:40,h:29,show:true}
-   },
-   sparring:{
-     '6226':{x:50,y:29,w:40,h:29,show:true},
-     '6227':{x:50,y:29,w:40,h:29,show:true},
-     '6230':{x:50,y:28,w:40,h:29,show:true}
-   }
- };
- function addMaskedLogo(layer,kind,place){
-   if(!place||!place.show||!logoOn)return;
-   const box=document.createElement('div');box.className='cx-logo-box';box.style.left=place.x+'%';box.style.top=place.y+'%';box.style.width=place.w+'%';box.style.height=place.h+'%';
-   if(kind==='contest'){
-     const m=document.createElement('div');m.className='cx-logo-mask cx-contest-m';m.style.backgroundColor=logoColor;
-     const txt=document.createElement('div');txt.className='cx-logo-mask cx-contest-text';txt.style.backgroundColor='#fff';
-     box.append(m,txt);
-   }else{
-     const all=document.createElement('div');all.className='cx-logo-mask cx-training-all';all.style.backgroundColor=logoColor;box.appendChild(all);
-   }
-   layer.appendChild(box);
- }
- function buildLayer(){const layer=E('cxLayer');layer.innerHTML='';sections.forEach(s=>{if(colors[s]!=='#ffffff'){const d=document.createElement('div');d.className='cx-panel-shape';d.style.setProperty('--c',colors[s]);d.style.clipPath=shapeMap[s]||'none';layer.appendChild(d);}});
-   const place=placements[frameName()]||{};
-   const lp=(logoPlacements[currentType]||{})[frameName()];
-   addMaskedLogo(layer,currentType==='contest'?'contest':'training',lp);
-   if(patchOn&&place.patch&&place.patch.show){const p=document.createElement('img');p.className='cx-patch-logo';p.src='assets/wrist-patch-transparent.png';p.style.left=place.patch.x+'%';p.style.top=place.patch.y+'%';p.style.width=place.patch.w+'%';p.style.height=place.patch.h+'%';layer.appendChild(p);}
-   const pos=textState.positions[view]||{x:50,y:50};const tx=E('cxText');tx.classList.toggle('on',textState.show);tx.textContent=textState.text;tx.style.left=pos.x+'%';tx.style.top=pos.y+'%';
- }
- function update(){typeUI();renderSections();renderViews();E('cxFrame').src=`assets/frames/${frameName()}.jpg`;E('cxLogoSwitch').classList.toggle('on',logoOn);E('cxLogoSwitchText').textContent=logoOn?'Main logo included':'Remove main logo (+£10)';E('cxPatchSwitch').classList.toggle('on',patchOn);E('cxPrice').textContent=logoOn?'125':'135';E('cxPriceNote').textContent=logoOn?'starting price':'£10 logo removal added';buildLayer();updateSummary();}
- function updateSummary(){const changed=sections.filter(s=>colors[s]!=='#ffffff').map(s=>`${s}: ${cname(colors[s])}`);E('cxSummary').innerHTML=`<b>${currentType.toUpperCase()} / ${weight}</b><br>Logo: ${logoOn?'Included — '+cname(logoColor):'Removed (+£10)'}<br>Wrist patch: ${patchOn?'Included':'Removed (free)'}<br>Colours: ${changed.length?changed.join(' · '):'All sections white'}<br>Custom text: ${textState.show?textState.text:'None'}`;}
- E('cxTypeRow').onclick=e=>{if(e.target.dataset.type){currentType=e.target.dataset.type;update()}};E('cxLogoSwitch').onclick=()=>{logoOn=!logoOn;update()};E('cxPatchSwitch').onclick=()=>{patchOn=!patchOn;update()};E('cxAddText').onclick=()=>{const t=E('cxTextInput').value.trim();if(!t)return;textState.show=true;textState.text=t;textState.positions[view]=textState.positions[view]||{x:50,y:50};update()};E('cxLogoTool').onclick=()=>E('cxLogoTitle').scrollIntoView({behavior:'smooth'});E('cxPatchTool').onclick=()=>document.querySelector('.cx-right').scrollTo({top:260,behavior:'smooth'});E('cxTextTool').onclick=()=>E('cxTextInput').focus();E('cxMenu').onclick=()=>document.querySelector('.cx-nav').classList.toggle('mobile-open');
- E('cxViewer').addEventListener('pointerdown',e=>{if(e.target.closest('#cxText'))return;rotating=true;lastX=e.clientX;try{E('cxViewer').setPointerCapture(e.pointerId)}catch{}});E('cxViewer').addEventListener('pointermove',e=>{if(!rotating)return;const dx=e.clientX-lastX;if(Math.abs(dx)>22){view=(view+(dx<0?1:-1)+frames.length)%frames.length;lastX=e.clientX;update()}});E('cxViewer').addEventListener('pointerup',()=>rotating=false);E('cxViewer').addEventListener('pointercancel',()=>rotating=false);
- E('cxText').addEventListener('pointerdown',e=>{e.stopPropagation();E('cxText').classList.add('drag');E('cxText').setPointerCapture(e.pointerId)});E('cxText').addEventListener('pointermove',e=>{if(!E('cxText').classList.contains('drag'))return;const r=E('cxFrameWrap').getBoundingClientRect();textState.positions[view]={x:Math.max(5,Math.min(95,(e.clientX-r.left)/r.width*100)),y:Math.max(5,Math.min(95,(e.clientY-r.top)/r.height*100))};buildLayer()});E('cxText').addEventListener('pointerup',()=>E('cxText').classList.remove('drag'));
- E('cxSend').onclick=()=>{const n=E('cxName').value.trim(),em=E('cxEmail').value.trim();if(!n||!em){alert('Please enter your name and email.');return}const body=`MANO A MANO CUSTOM GLOVE DESIGN\n\nName: ${n}\nEmail: ${em}\nGlove: ${currentType} ${weight}\nPrice: £${logoOn?125:135}\nMain logo: ${logoOn?'Included — '+cname(logoColor):'Removed (+£10)'}\nWrist patch: ${patchOn?'Included':'Removed (free)'}\nCustom text: ${textState.show?textState.text:'None'}\n\n${sections.map(s=>s+': '+cname(colors[s])).join('\n')}\n\nExtra details: ${E('cxExtra').value}`;location.href='mailto:kieranmacmillan07@icloud.com?subject='+encodeURIComponent('Mano a Mano Custom Glove Design')+'&body='+encodeURIComponent(body)};
- update();
-}
- document.querySelector('#menuToggle').onclick=()=>document.querySelector('.sidebar').classList.toggle('open');
- addEventListener('hashchange',legacyRender);legacyRender();
-})();
+const COLORS=[['blue','#1265ff'],['tiffany blue','#0abab5'],['teal blue','#078a8a'],['sky blue','#56b8ff'],['red','#e3262e'],['ruby red','#9b111e'],['white','#f4f4f2'],['silver','#b9bec5'],['black','#050505'],['navy','#081b4b'],['orange','#f47a1f'],['purple','#7b3fc6'],['light purple','#b78cff'],['dark grey','#444'],['light grey','#b8b8b8'],['deep blue','#123c9e'],['admiral blue','#2d5f9a'],['space blue','#183b57'],['blue grey','#6f8192'],['dark maroon','#4a1019'],['gold','#c6a15b'],['yellow','#f4d30b'],['neon yellow','#dfff00'],['clover','#168a45'],['brown','#6b4026'],['green','#21a34a'],['lime green','#8dcc19'],['forest green','#164b2a'],['wbc green','#009b77'],['olive green','#687230'],['pink','#f08bb5'],['hot pink','#ff2b88'],['burgundy','#6f1232'],['maroon','#751b25'],['skin','#d7a07b']];
+const AREAS=['Palm Back','Wrist Back','Thumb Up','Thumb Middle','Thumb Down','Thumb In','Thumb Strip','Thumb Attachment','Palm In','Palm Out','Piping','Stitches','Laces'];
+const img={contest:'assets/contest.jpg',laces:'assets/laces.jpg',velcro:'assets/velcro.jpg'};
+const blank=()=>({colors:{},logoColor:'#050505',dangerColor:'#050505',mainLogo:true,wristPatch:true,customText:''});
+const state={type:'contest',size:'8oz',padding:'foam',closure:'laces',activeGlove:'left',design:{left:blank(),right:blank()},area:'Palm Back'};
+const $=id=>document.getElementById(id); const q=s=>document.querySelectorAll(s);
+function design(){return state.design[state.activeGlove]}
+function mode(){return state.type==='contest'?'contest':state.closure}
+function setType(type){state.type=type;state.size=type==='contest'?'8oz':'14oz';state.padding='foam';state.closure=type==='contest'?'laces':'laces';state.area='Palm Back';q('#typeTabs button,#typeBtns button').forEach(b=>b.classList.toggle('active',b.dataset.type===type));renderOptions();renderAreas();renderLogo();renderTemplate();}
+function renderOptions(){let h='';if(state.type==='contest'){h+=block('Padding type',`<div class="seg two"><button data-pad="foam" class="${state.padding==='foam'?'active':''}">Foam</button><button data-pad="horsehair" class="${state.padding==='horsehair'?'active':''}">Horsehair</button></div>`);h+=block('Weight',`<div class="seg three"><button data-size="8oz" class="${state.size==='8oz'?'active':''}">8oz</button><button data-size="10oz" class="${state.size==='10oz'?'active':''}">10oz</button><button data-size="12oz" class="${state.size==='12oz'?'active':''}">12oz</button></div>`)}else{h+=block('Padding type',`<div class="seg two"><button data-pad="foam" class="${state.padding==='foam'?'active':''}">Full foam</button><button data-pad="blend" class="${state.padding==='blend'?'active':''}">3 mix horsehair blend</button></div>`);h+=block('Closure',`<div class="seg two"><button data-closure="laces" class="${state.closure==='laces'?'active':''}">Laces</button><button data-closure="velcro" class="${state.closure==='velcro'?'active':''}">Velcro</button></div>`);h+=block('Weight',`<div class="seg two"><button data-size="14oz" class="${state.size==='14oz'?'active':''}">14oz</button><button data-size="16oz" class="${state.size==='16oz'?'active':''}">16oz</button></div>`)}$('options').innerHTML=h;q('#options [data-pad]').forEach(b=>b.onclick=()=>{state.padding=b.dataset.pad;renderOptions()});q('#options [data-size]').forEach(b=>b.onclick=()=>{state.size=b.dataset.size;renderOptions()});q('#options [data-closure]').forEach(b=>b.onclick=()=>{state.closure=b.dataset.closure;state.area='Palm Back';renderOptions();renderLogo();renderAreas();renderTemplate()});}
+function block(title,inner){return `<div class="option-title">${title}</div>${inner}`}
+function renderAreas(){const available=state.type==='contest'?AREAS:AREAS; $('areas').innerHTML=available.map(a=>`<button class="area-btn ${state.area===a?'active':''}" data-area="${a}">${a}</button>`).join('');q('.area-btn').forEach(b=>b.onclick=()=>{state.area=b.dataset.area;$('areaTitle').textContent=state.area;$('paletteTitle').textContent=state.area;openPalette();renderAreas()});$('areaTitle').textContent=state.area}
+function openPalette(){const fixed=state.area==='Stitches'||state.area==='Laces';$('palette').innerHTML=COLORS.map(([n,c])=>`<button class="swatch ${(design().colors[state.area]||'#f4f4f2')===c?'selected':''}" data-color="${c}" ${fixed?'disabled':''} style="background:${c}"><span>${n}</span></button>`).join('');$('paletteCard').classList.add('open');q('.swatch').forEach(b=>b.onclick=()=>{design().colors[state.area]=b.dataset.color;renderTemplate();openPalette()})}
+$('closePalette').onclick=()=>$('paletteCard').classList.remove('open');
+function renderLogo(){const d=design();const velcro=state.type!=='contest'&&state.closure==='velcro';const removal=!velcro;$('logoOptions').innerHTML=`<div class="logo-row"><div><b>Main glove logo</b><small>${removal?'Remove for +£10':'Mandatory on velcro gloves — cannot be removed'}</small></div><button id="mainToggle" class="toggle ${d.mainLogo?'on':''}" ${removal?'':'disabled'}></button></div><div class="logo-row"><div><b>Logo colour</b><small>Logo remains above the selected leather colour.</small><div class="logo-palette" id="logoPalette"></div></div></div>${velcro?`<div class="logo-row"><div><b>Dangerous Adversary logo</b><small>Colour can change — cannot be removed.</small><div class="logo-palette" id="dangerPalette"></div></div></div>`:''}<div class="logo-row"><div><b>Wrist patch</b><small>${velcro?'Fixed on velcro — cannot be removed':'Can be removed free of charge'}</small></div><button id="wristToggle" class="toggle ${d.wristPatch?'on':''}" ${velcro?'disabled':''}></button></div>`;
+function mini(id,key){$(id).innerHTML=COLORS.map(([n,c])=>`<button class="mini-swatch ${d[key]===c?'active':''}" title="${n}" style="background:${c}" data-c="${c}"></button>`).join('');q('#'+id+' .mini-swatch').forEach(b=>b.onclick=()=>{d[key]=b.dataset.c;renderLogo();renderTemplate()})}mini('logoPalette','logoColor');if(velcro)mini('dangerPalette','dangerColor');$('mainToggle')?.addEventListener('click',()=>{d.mainLogo=!d.mainLogo;renderLogo();updatePrice();renderTemplate()});$('wristToggle')?.addEventListener('click',()=>{if(!velcro){d.wristPatch=!d.wristPatch;renderLogo();renderTemplate()}});}
+function updatePrice(){const d=design();const fee=!d.mainLogo; $('price').textContent='£'+(125+(fee?10:0));$('fee').classList.toggle('hidden',!fee)}
+// Normalised polygon masks. Coordinates are percentages of the supplied final templates. They follow the actual seam layout in the three final artworks.
+const masks={
+contest:{
+'Palm Back':[[[57,4],[86,4],[87,60],[58,61]],[[12,31],[38,31],[39,90],[13,90]]],
+'Wrist Back':[[[57,61],[87,61],[87,91],[57,91]]],
+'Thumb Up':[[[35,17],[40,17],[43,33],[40,43],[36,39]]],
+'Thumb Middle':[[[35,32],[43,32],[42,49],[36,52]]],
+'Thumb Down':[[[35,46],[42,47],[41,64],[35,66]]],
+'Thumb In':[[[34,59],[40,59],[39,70],[34,69]]],
+'Thumb Strip':[[[39,17],[43,18],[40,68],[37,68]]],
+'Thumb Attachment':[[[32,37],[36,36],[37,67],[33,69]]],
+'Palm In':[[[13,32],[38,32],[36,88],[14,88]]],
+'Palm Out':[[[57,4],[86,4],[87,60],[58,61]]]
+},
+laces:{
+'Palm Back':[[[57,4],[86,4],[87,60],[58,61]],[[12,31],[38,31],[39,90],[13,90]]],
+'Wrist Back':[[[57,61],[87,61],[87,91],[57,91]]],
+'Thumb Up':[[[35,16],[40,17],[43,32],[40,43],[36,39]]],
+'Thumb Middle':[[[35,32],[43,32],[42,49],[36,52]]],
+'Thumb Down':[[[35,46],[42,47],[41,64],[35,66]]],
+'Thumb In':[[[34,59],[40,59],[39,70],[34,69]]],
+'Thumb Strip':[[[39,16],[43,17],[40,68],[37,68]]],
+'Thumb Attachment':[[[32,37],[36,36],[37,67],[33,69]]],
+'Palm In':[[[13,32],[38,32],[36,88],[14,88]]],
+'Palm Out':[[[57,4],[86,4],[87,60],[58,61]]]
+},
+velcro:{
+'Palm Back':[[[57,3],[88,3],[89,61],[58,61]],[[11,2],[44,2],[43,47],[13,48]]],
+'Wrist Back':[[[58,62],[88,62],[88,93],[58,93]],[[12,63],[44,63],[44,93],[12,93]]],
+'Thumb Up':[[[38,16],[42,17],[43,32],[39,43]]],
+'Thumb Middle':[[[38,31],[44,31],[43,48],[39,51]]],
+'Thumb Down':[[[37,46],[43,47],[42,63],[37,65]]],
+'Thumb In':[[[35,59],[40,59],[39,70],[34,70]]],
+'Thumb Strip':[[[40,17],[44,18],[41,67],[38,67]]],
+'Thumb Attachment':[[[32,37],[38,35],[39,67],[33,69]]],
+'Palm In':[[[12,3],[44,3],[44,47],[12,47]]],
+'Palm Out':[[[57,3],[88,3],[89,61],[58,61]]]
+}}
+const pipings={contest:[[[13,60],[39,60]],[[57,61],[87,61]],[[13,91],[39,91]],[[57,91],[87,91]]],laces:[[[13,60],[39,60]],[[57,61],[87,61]],[[13,91],[39,91]],[[57,91],[87,91]]],velcro:[[[12,62],[44,62]],[[58,62],[88,62]],[[12,93],[44,93]],[[58,93],[88,93]],[[44,64],[44,92]],[[88,64],[88,92]]]};
+function poly(points){return points.map(p=>p.join('% ')+'%').join(',')}
+function regionHTML(points,color){return `<div class="region" style="clip-path:polygon(${points.map(p=>p.join('% ')).join(',')})"><div class="fill" style="background:${color}"></div></div>`}
+function renderTemplate(){const d=design();const m=mode();$('templateImg').src=img[m];$('templateTag').textContent=(state.type==='contest'?'CONTEST':state.type.toUpperCase())+' · '+(m==='velcro'?'VELCRO':'LACES');$('gloveLabel').textContent=(state.activeGlove==='left'?'LEFT':'RIGHT')+' GLOVE';
+let html='';const mm=masks[m];Object.entries(mm).forEach(([a,polys])=>{const c=d.colors[a]||'#f4f4f2';polys.forEach(p=>html+=regionHTML(p,c))});$('colorLayer').innerHTML=html;
+let lh='';const pc=d.colors.Piping||'#f4f4f2';pipings[m].forEach(line=>{const [a,b]=line;const left=a[0],top=a[1],width=b[0]-a[0],height=Math.max(0.5,b[1]-a[1]+1);lh+=`<div class="piping" style="left:${left}%;top:${top}%;width:${width}%;height:${height}%;background:${pc}"></div>`});$('lineLayer').innerHTML=lh;
+let logos='';if(d.mainLogo){if(state.type==='contest'){logos+=`<div class="logo-tint" style="left:67%;top:20%;width:18%;height:33%;background:${d.logoColor};opacity:.7"></div>`}else{logos+=`<div class="logo-tint" style="left:61%;top:19%;width:27%;height:25%;background:${d.logoColor};opacity:.82"></div>`}}
+if(state.type==='contest'&&d.wristPatch)logos+=`<div class="logo-tint" style="left:60%;top:66%;width:25%;height:21%;background:#050505;opacity:.25"></div>`;
+if(state.type!=='contest'&&m==='velcro'){logos+=`<div class="logo-tint" style="left:13%;top:66%;width:29%;height:20%;background:${d.dangerColor};opacity:.5"></div>`}
+if(d.customText)logos+=`<div class="text-decal" style="left:75%;top:55%;color:${d.logoColor}">${escapeHtml(d.customText)}</div>`;$('logoLayer').innerHTML=logos;updatePrice()}
+function escapeHtml(s){return s.replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+q('#typeTabs button,#typeBtns button').forEach(b=>b.onclick=()=>setType(b.dataset.type));$('switchBtn').onclick=()=>{state.activeGlove=state.activeGlove==='left'?'right':'left';renderLogo();renderTemplate()};$('copyBtn').onclick=()=>{state.design.right=JSON.parse(JSON.stringify(state.design.left));showToast('Left glove design copied to right glove');if(state.activeGlove==='right')renderLogo();renderTemplate()};$('customText').oninput=e=>{design().customText=e.target.value;renderTemplate()};$('textToggle').onclick=()=>{$('customText').focus()};$('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');$('sendBtn').onclick=()=>{const name=$('name').value.trim(),email=$('email').value.trim();if(!name||!email){showToast('Please enter your name and email');return}const payload={gloveType:state.type,size:state.size,padding:state.padding,closure:state.closure,leftGlove:state.design.left,rightGlove:state.design.right,extraDetails:$('details').value,name,email};const body=encodeURIComponent(JSON.stringify(payload,null,2));window.location.href=`mailto:kieranmacmillan07@icloud.com?subject=Mano%20a%20Mano%20Custom%20Glove%20Design&body=${body}`};function showToast(t){const e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2200)}
+renderOptions();renderAreas();renderLogo();renderTemplate();
